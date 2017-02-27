@@ -619,6 +619,7 @@ static void hidp_process_transmit(struct hidp_session *session,
 static int hidp_setup_input(struct hidp_session *session,
 				struct hidp_connadd_req *req)
 {
+	printk(KERN_INFO"------hidp_setup_input----\n");
 	struct input_dev *input;
 	int i;
 
@@ -729,6 +730,7 @@ static struct hid_ll_driver hidp_hid_driver = {
 static int hidp_setup_hid(struct hidp_session *session,
 				struct hidp_connadd_req *req)
 {
+	printk(KERN_INFO"------hidp_setup_hid------\n");
 	struct hid_device *hid;
 	int err;
 

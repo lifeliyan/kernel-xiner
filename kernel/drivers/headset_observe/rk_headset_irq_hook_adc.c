@@ -170,6 +170,9 @@ static irqreturn_t headset_interrupt(int irq, void *dev_id)
 		headset_info->headset_status?"in":"out");
 	if(headset_info->headset_status == HEADSET_IN)
 	{
+		printk(KERN_INFO"ly------headset_in(%s) %d  %d \n",__FUNCTION__,pdata->apshdn_gpio,pdata->apmute_gpio);
+		gpio_set_value(pdata->apshdn_gpio,0);
+		gpio_set_value(pdata->apmute_gpio,0);
 		if(pdata->chan != 0)
 		{
 			//detect Hook key
@@ -191,6 +194,9 @@ static irqreturn_t headset_interrupt(int irq, void *dev_id)
 	}
 	else if(headset_info->headset_status == HEADSET_OUT)
 	{
+		printk(KERN_INFO"ly------headset_out(%s) %d   %d  \n",__FUNCTION__,pdata->apshdn_gpio,pdata->apmute_gpio);
+		gpio_set_value(pdata->apshdn_gpio,1);
+		gpio_set_value(pdata->apmute_gpio,1);
 		headset_info->cur_headset_status = ~(BIT_HEADSET|BIT_HEADSET_NO_MIC);
 		cancel_delayed_work(&headset_info->hook_work);
 		if(headset_info->isMic)

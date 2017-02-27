@@ -94,7 +94,8 @@ static int remotectl_keycode_lookup(struct rkxx_remotectl_drvdata *ddata)
 {
 	int i;
 	unsigned char keydata = (unsigned char)((ddata->scandata >> 8) & 0xff);
-
+ //int keydata = ddata->scandata & 0xFFFF;
+	printk(KERN_INFO "hczhang: keydata is 0x%X\n", keydata);
 	for (i = 0; i < remotectl_button[ddata->keynum].nbuttons; i++) {
 		if (remotectl_button[ddata->keynum].key_table[i].scancode ==
 		    keydata) {
@@ -184,7 +185,7 @@ static void rk_pwm_remotectl_do_something(unsigned long  data)
 		break;
 	}
 	case RMC_PRELOAD: {
-		mod_timer(&ddata->timer, jiffies + msecs_to_jiffies(140));
+		mod_timer(&ddata->timer, jiffies + msecs_to_jiffies(130)); //140
 		if ((RK_PWM_TIME_PRE_MIN < ddata->period) &&
 		    (ddata->period < RK_PWM_TIME_PRE_MAX)) {
 			ddata->scandata = 0;
@@ -218,12 +219,16 @@ static void rk_pwm_remotectl_do_something(unsigned long  data)
 	}
 	break;
 	case RMC_GETDATA: {
+
+#if 0
+	//	DBG_CODE("RMC_GETDATA-orig=%X\n", (ddata->scandata));
 		if ((RK_PWM_TIME_BIT1_MIN < ddata->period) &&
 		    (ddata->period < RK_PWM_TIME_BIT1_MAX))
 			ddata->scandata |= (0x01<<ddata->count);
 		ddata->count++;
 		if (ddata->count < 0x10)
 			return;
+		DBG_CODE("RMC_GETDATA=%X\n", (ddata->scandata));
 		DBG_CODE("RMC_GETDATA=%x\n", (ddata->scandata>>8));
 		if ((ddata->scandata&0x0ff) ==
 		    ((~ddata->scandata >> 8) & 0x0ff)) {
@@ -239,6 +244,38 @@ static void rk_pwm_remotectl_do_something(unsigned long  data)
 		} else {
 			ddata->state = RMC_PRELOAD;
 		}
+#endif 
+//ddata->count ++;
+            //ddata->scanData <<= 1;
+            //#ifdef CONFIG_FIREFLY_POWER_LED
+            //mod_timer(&timer_led,jiffies + msecs_to_jiffies(50));
+            //remotectl_led_ctrl(0);    
+            //#endif            
+            if ((RK_PWM_TIME_BIT1_MIN < ddata->period) && (ddata->period < RK_PWM_TIME_BIT1_MAX)){
+                ddata->scandata |= (0x01<<ddata->count);
+            }   
+            ddata->count ++;      
+            if (ddata->count == 0x10){
+                printk("RMC_GETDATA=%x\n",(ddata->scandata>>8));
+                printk("RMC_GETDATA=%x\n",(ddata->scandata));
+                if ((ddata->scandata&0x0ff) == ((~ddata->scandata >> 8)&0x0ff)){
+                    if (remotectl_keycode_lookup(ddata)){
+                        ddata->press = 1;
+					//	if(ddata->keycode== KEY_POWER && !get_state_remotectl()){
+                      // 		led_trigger_event(ledtrig_ir_click,LED_OFF);
+                        //                       }
+
+                        input_event(ddata->input, EV_KEY, ddata->keycode, 1);
+                        input_sync(ddata->input);
+                        ddata->state = RMC_SEQUENCE;
+                    }else{
+                        ddata->state = RMC_PRELOAD;
+                    }
+                }else{
+                    ddata->state = RMC_PRELOAD;
+                }
+            }
+
 	}
 	break;
 	case RMC_SEQUENCE:{
@@ -271,6 +308,7 @@ static void rk_pwm_remotectl_do_something(unsigned long  data)
 	default:
 	break;
 	}
+return;
 }
 
 static void rk_pwm_remotectl_timer(unsigned long _data)
@@ -340,10 +378,10 @@ static irqreturn_t rockchip_pwm_irq(int irq, void *dev_id)
 				val = readl_relaxed(ddata->base + PWM_REG_HPR);
 				ddata->period = val;
 				tasklet_hi_schedule(&ddata->remote_tasklet);
-				DBG("hpr=0x%x\n", val);
+				DBG("hpr2=0x%x\n", val);
 			} else {
 				val = readl_relaxed(ddata->base + PWM_REG_LPR);
-				DBG("lpr=0x%x\n", val);
+				DBG("lpr2=0x%x\n", val);
 			}
 			writel_relaxed(PWM_CH2_INT, ddata->base + PWM2_REG_INTSTS);
 			if (ddata->state == RMC_PRELOAD)

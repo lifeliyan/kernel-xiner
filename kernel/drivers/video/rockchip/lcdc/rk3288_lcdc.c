@@ -3800,10 +3800,12 @@ static int rk3288_lcdc_probe(struct platform_device *pdev)
 	}
 	platform_set_drvdata(pdev, lcdc_dev);
 	lcdc_dev->dev = dev;
+	
 	rk3288_lcdc_parse_dt(lcdc_dev);
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	lcdc_dev->reg_phy_base = res->start;
 	lcdc_dev->len = resource_size(res);
+	//物理地址到虚拟地址的映射
 	lcdc_dev->regs = devm_ioremap_resource(dev, res);
 	if (IS_ERR(lcdc_dev->regs))
 		return PTR_ERR(lcdc_dev->regs);
@@ -3817,6 +3819,7 @@ static int rk3288_lcdc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "no such lcdc device!\n");
 		return -ENXIO;
 	}
+	//这里使用了类似printf的方式  不定参数
 	dev_set_name(lcdc_dev->dev, "lcdc%d", lcdc_dev->id);
 	dev_drv = &lcdc_dev->driver;
 	dev_drv->dev = dev;
@@ -3825,14 +3828,14 @@ static int rk3288_lcdc_probe(struct platform_device *pdev)
 	dev_drv->ops = &lcdc_drv_ops;
 	dev_drv->lcdc_win_num = ARRAY_SIZE(lcdc_win);
 	spin_lock_init(&lcdc_dev->reg_lock);
-
+	//从dts中获取irq的num
 	lcdc_dev->irq = platform_get_irq(pdev, 0);
 	if (lcdc_dev->irq < 0) {
 		dev_err(&pdev->dev, "cannot find IRQ for lcdc%d\n",
 			lcdc_dev->id);
 		return -ENXIO;
 	}
-
+	//申请中断资源
 	ret = devm_request_irq(dev, lcdc_dev->irq, rk3288_lcdc_isr,
 			       IRQF_DISABLED | IRQF_SHARED, dev_name(dev), lcdc_dev);
 	if (ret) {

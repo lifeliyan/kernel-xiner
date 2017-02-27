@@ -79,6 +79,7 @@ static inline unsigned int rk_fiq_read_lsr(struct rk_fiq_debugger *t)
 
 static int debug_port_init(struct platform_device *pdev)
 {
+#if 0
 	struct rk_fiq_debugger *t;
 	t = container_of(dev_get_platdata(&pdev->dev), typeof(*t), pdata);
 
@@ -95,6 +96,25 @@ static int debug_port_init(struct platform_device *pdev)
 	rk_fiq_write(t, 0xc1, UART_FCR);
 
 	return 0;
+#endif
+
+	int dll = 0, dlm = 0;
+	struct rk_fiq_debugger *t;
+	t = container_of(dev_get_platdata(&pdev->dev), typeof(*t), pdata);
+	if (rk_fiq_read(t, UART_LSR) & UART_LSR_DR)
+        (void)rk_fiq_read(t, UART_RX);
+	rk_fiq_write(t, 0x83, UART_LCR);
+	/* set baud rate */
+
+    rk_fiq_write(t, dll, UART_DLL);
+    rk_fiq_write(t, dlm, UART_DLM);
+    rk_fiq_write(t, 0x03, UART_LCR);
+	/* enable rx and lsr interrupt */
+
+    rk_fiq_write(t, UART_IER_RLSI | UART_IER_RDI, UART_IER);
+	rk_fiq_write(t, 0xc1, UART_FCR);
+	return 0;
+
 }
 
 static int debug_getc(struct platform_device *pdev)

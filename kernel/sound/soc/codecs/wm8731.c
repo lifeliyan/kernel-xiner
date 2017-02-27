@@ -81,7 +81,7 @@ static bool wm8731_writeable(struct device *dev, unsigned int reg)
 #define wm8731_reset(c)	snd_soc_write(c, WM8731_RESET, 0)
 
 static const char *wm8731_input_select[] = {"Line In", "Mic"};
-
+/*输入选择控制寄存器是寄存器4的bit2,0是Line in,1是Mic,最大值是2*/
 static const struct soc_enum wm8731_insel_enum =
 	SOC_ENUM_SINGLE(WM8731_APANA, 2, 2, wm8731_input_select);
 

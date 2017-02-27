@@ -4313,6 +4313,7 @@ static int ricoh619_battery_probe(struct platform_device *pdev)
 	struct ricoh619 *ricoh619 = dev_get_drvdata(pdev->dev.parent);
 	int ret, temp;
 printk("ricoh619_battery_probexx\n");
+printk(KERN_INFO"ly---------ricoh619_battery_probexx\n");
 	RICOH_FG_DBG(KERN_INFO "PMU: %s : version is %s\n", __func__,RICOH619_BATTERY_VERSION);
 
 	pdata = ricoh619_battery_dt_init(pdev);
@@ -4408,6 +4409,7 @@ printk("ricoh619_battery_probexx\n");
 
 #endif
 */
+	/* supply  battery register */
 	ret = power_supply_register(&pdev->dev, &info->battery);
 
 	if (ret<0)
@@ -4499,8 +4501,12 @@ printk("ricoh619_battery_probexx\n");
 					RICOH619_MONITOR_START_TIME*HZ);
 
 	/* Enable Charger/ADC interrupt */
+
 	ricoh619_set_bits(info->dev->parent, RICOH619_INTC_INTEN, CHG_INT | ADC_INT);
 
+	printk(KERN_INFO"ly------0x37--------s\n");
+     ricoh619_write(info->dev->parent, 0x37, 0x98);
+	printk(KERN_INFO"ly------0x37--------e\n");
 	return 0;
 
 out:

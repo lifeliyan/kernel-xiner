@@ -528,7 +528,7 @@ int ricoh619_irq_init(struct ricoh619 *ricoh619, int irq,
 			dev_err(ricoh619->dev, "Error in writing reg 0x%02x "
 				"error: %d\n", irq_en_add[i], ret);
 	}
-
+/*GPIO Interrupt Detection Type Setting Register */
 	for (i = 0; i < MAX_GPEDGE_REG; i++)  {
 		ret = ricoh619_write(ricoh619->dev,
 				gpedge_add[i],
@@ -537,7 +537,7 @@ int ricoh619_irq_init(struct ricoh619 *ricoh619, int irq,
 			dev_err(ricoh619->dev, "Error in writing reg 0x%02x "
 				"error: %d\n", gpedge_add[i], ret);
 	}
-
+/*Interrupt Output Control Register*/
 	ret = ricoh619_write(ricoh619->dev, RICOH619_INTC_INTEN, 0x0);
 	if (ret < 0)
 		dev_err(ricoh619->dev, "Error in writing reg 0x%02x "
@@ -545,7 +545,7 @@ int ricoh619_irq_init(struct ricoh619 *ricoh619, int irq,
 
 	/* Clear all interrupts in case they woke up active. */
 	for (i = 0; i < MAX_INTERRUPT_MASKS; i++)  {
-		if(irq_clr_add[i] != RICOH619_INT_IR_RTC)
+		if(irq_clr_add[i] != RICOH619_INT_IR_RTC) //RTC Control Register 2
 		{
 			ret = ricoh619_write(ricoh619->dev,
 					irq_clr_add[i], 0);
@@ -569,7 +569,7 @@ int ricoh619_irq_init(struct ricoh619 *ricoh619, int irq,
 			
 		}
 	}
-
+/*   */
 	if (pdata->irq_gpio && !ricoh619->chip_irq) {
 		ricoh619->chip_irq = gpio_to_irq(pdata->irq_gpio);
 

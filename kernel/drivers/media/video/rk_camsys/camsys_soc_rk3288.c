@@ -95,6 +95,7 @@ static int camsys_rk3288_mipihpy_cfg (camsys_mipiphy_soc_para_t *para)
     } else {
         phy_virt = 0x00;
     }
+	camsys_err("ly--*************in soc_rk3288.c  phy_virt:%ld\n",phy_virt);
     
     if ((para->phy->bit_rate == 0) || (para->phy->data_en_bit == 0)) {
         if (para->phy->phy_index == 0) {
@@ -114,6 +115,7 @@ static int camsys_rk3288_mipihpy_cfg (camsys_mipiphy_soc_para_t *para)
     
     hsfreqrange_p = mipiphy_hsfreqrange;
     for (i=0; i<(sizeof(mipiphy_hsfreqrange)/sizeof(struct mipiphy_hsfreqrange_s)); i++) {
+        camsys_err("ly-----hsfreqrange_p->range_l:%d  hsfreqrange_p->range_h:%d \n",hsfreqrange_p->range_l,hsfreqrange_p->range_h);
 
         if ((para->phy->bit_rate > hsfreqrange_p->range_l) && (para->phy->bit_rate <= hsfreqrange_p->range_h)) {
             hsfreqrange = hsfreqrange_p->cfg_bit;
@@ -126,7 +128,11 @@ static int camsys_rk3288_mipihpy_cfg (camsys_mipiphy_soc_para_t *para)
         camsys_err("mipi phy config bitrate %d Mbps isn't supported!",para->phy->bit_rate);
         hsfreqrange = 0x00;
     }
+	camsys_err("ly--in soc_rk3288.c  hsfreqrange:%02x\n",hsfreqrange);
+
     hsfreqrange <<= 1;
+	//hsfreqrange = 0x09;
+	//camsys_err("ly--in soc_rk3288.c  hsfreqrange:%02x\n",hsfreqrange);
     
     if (para->phy->phy_index == 0) {
         write_grf_reg(GRF_SOC_CON6_OFFSET, MIPI_PHY_DPHYSEL_OFFSET_MASK | (para->phy->phy_index<<MIPI_PHY_DPHYSEL_OFFSET_BIT)); 
@@ -177,6 +183,7 @@ static int camsys_rk3288_mipihpy_cfg (camsys_mipiphy_soc_para_t *para)
         write_grf_reg(GRF_SOC_CON14_OFFSET, DPHY_TX1RX1_BASEDIR_REC | DPHY_TX1RX1_BASEDIR_OFFSET); 
 
         //  set lane num
+	camsys_err("ly--in soc_rk3288.c  data_en_bit:%ld\n",para->phy->data_en_bit);
         write_grf_reg(GRF_SOC_CON9_OFFSET, DPHY_TX1RX1_ENABLE_MASK | (para->phy->data_en_bit << DPHY_TX1RX1_ENABLE_OFFSET_BITS)); 
         //  set lan turndisab as 1
         write_grf_reg(GRF_SOC_CON9_OFFSET, DPHY_TX1RX1_TURN_DISABLE_MASK | (0xf << DPHY_TX1RX1_TURN_DISABLE_OFFSET_BITS));
@@ -195,10 +202,16 @@ static int camsys_rk3288_mipihpy_cfg (camsys_mipiphy_soc_para_t *para)
    
             //set clock lane
             camsys_rk3288_mipiphy1_wr_reg(phy_virt,0x34,0x15);
-            if (para->phy->data_en_bit >= 0x00)  
-                camsys_rk3288_mipiphy1_wr_reg(phy_virt,0x44,hsfreqrange);         
-            if (para->phy->data_en_bit >= 0x01) 
+            if (para->phy->data_en_bit >= 0x00) {
+             
+				camsys_err("ly in soc_rk3288 hsfreqrange:%02x\n",hsfreqrange);
+				camsys_rk3288_mipiphy1_wr_reg(phy_virt,0x44,hsfreqrange); 
+			}
+            if (para->phy->data_en_bit >= 0x01){
+
+				camsys_err("ly in soc_rk3288 hsfreqrang2:%02x\n",hsfreqrange);
                 camsys_rk3288_mipiphy1_wr_reg(phy_virt,0x54,hsfreqrange);
+			}
             if (para->phy->data_en_bit >= 0x04) { 
                 camsys_rk3288_mipiphy1_wr_reg(phy_virt,0x84,hsfreqrange);
                 camsys_rk3288_mipiphy1_wr_reg(phy_virt,0x94,hsfreqrange);
@@ -223,5 +236,4 @@ static int camsys_rk3288_mipihpy_cfg (camsys_mipiphy_soc_para_t *para)
 fail:
     return -1;
 }
-
 

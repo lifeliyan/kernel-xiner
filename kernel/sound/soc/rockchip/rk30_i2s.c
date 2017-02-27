@@ -42,7 +42,7 @@
 #include "rk_pcm.h"
 #include "rk_i2s.h"
 
-#if 0
+#if 1
 #define I2S_DBG(x...) printk(KERN_INFO x)
 #else
 #define I2S_DBG(x...) do { } while (0)

@@ -35,6 +35,12 @@
 #include <linux/rk_fb.h>
 #include <linux/leds.h>
 
+
+#define GRF_BASE    0xff770000
+#define GRF_GPIO7CH_IO  0x0078
+//#define GRF_CLKGATE11_CON_RK  0x
+#define GRF_SOC_CON2_RK  0x024c
+
 // sys/module/rk_pwm_remotectl/parameters,modify code_print to change the value
 static int rk_remote_print_code = 0;
 static bool remote_suspend = false;
@@ -426,21 +432,22 @@ static void rk_pwm_remotectl_timer(unsigned long _data)
 
 static irqreturn_t rockchip_pwm_irq(int irq, void *dev_id)
 {
+	printk(KERN_INFO"ly--------------------rockchip pwm irq\n");
     struct rkxx_remotectl_drvdata *ddata =  (struct rkxx_remotectl_drvdata*)dev_id;
     int val;
    
     val = readl_relaxed(ddata->base + PWM_REG_INTSTS);
-    if (val&PWM_CH0_INT){
-        if ((val&PWM_CH0_POL)==0){
-            val = readl_relaxed(ddata->base + PWM_REG_HPR);
+    if (val&PWM_CH2_INT){
+        if ((val&PWM_CH2_POL)==0){
+            val = readl_relaxed(ddata->base + PWM2_REG_HPR);
             ddata->period = val;
             tasklet_hi_schedule(&ddata->remote_tasklet); 
             DBG("hpr=0x%x\n",val);
         }else{
-            val = readl_relaxed(ddata->base + PWM_REG_LPR);
+            val = readl_relaxed(ddata->base + PWM2_REG_LPR);
             DBG("lpr=0x%x\n",val);
         }
-        writel_relaxed(PWM_CH0_INT, ddata->base + PWM_REG_INTSTS);  
+        writel_relaxed(PWM_CH2_INT, ddata->base + PWM_REG_INTSTS);  
 #if ! defined(CONFIG_RK_IR_NO_DEEP_SLEEP)    
         if (ddata->state==RMC_PRELOAD){
             wake_lock_timeout(&ddata->remotectl_wake_lock, HZ);
@@ -456,33 +463,40 @@ static int rk_pwm_remotectl_hw_init(struct rkxx_remotectl_drvdata *ddata)
     //int ret;
 	int val;
 	
-	//printk("rk_pwm_remotectl_hw_init,base=0x%x \n",ddata->base);
+	printk("rk_pwm_remotectl_hw_init,base=0x%x \n",ddata->base);
 	
-    val = readl_relaxed(ddata->base + PWM_REG_CTRL);
+    val = readl_relaxed(ddata->base + PWM2_REG_CTRL);
+	printk(KERN_INFO"ly----pwm_reg_ctrl:%02x\n",val);
     val = (val & 0xFFFFFFFE) | PWM_DISABLE;
-    writel_relaxed(val, ddata->base + PWM_REG_CTRL);
+    writel_relaxed(val, ddata->base + PWM2_REG_CTRL);
     
-    val = readl_relaxed(ddata->base + PWM_REG_CTRL);
+    val = readl_relaxed(ddata->base + PWM2_REG_CTRL);
     val = (val & 0xFFFFFFF9) | PWM_MODE_CAPTURE;
-    writel_relaxed(val, ddata->base + PWM_REG_CTRL);
+	printk(KERN_INFO"ly----pwm_reg_ctrl2:%02x\n",val);
+    writel_relaxed(val, ddata->base + PWM2_REG_CTRL);
     
-    val = readl_relaxed(ddata->base + PWM_REG_CTRL);
+    val = readl_relaxed(ddata->base + PWM2_REG_CTRL);
     val = (val & 0xFF008DFF) | 0x00646200;
-    writel_relaxed(val, ddata->base + PWM_REG_CTRL);
+	printk(KERN_INFO"ly----pwm_reg_ctrl3:%02x\n",val);
+    writel_relaxed(val, ddata->base + PWM2_REG_CTRL);
     
     val = readl_relaxed(ddata->base + PWM_REG_INT_EN);
-    val = (val & 0xFFFFFFFE) | 1;
+    val = (val & 0xFFFFFFFb) | 0x4;
+	printk(KERN_INFO"ly----pwm_reg_int:%02x\n",val);
     writel_relaxed(val, ddata->base + PWM_REG_INT_EN);
 
-    val = readl_relaxed(ddata->base + PWM_REG_CTRL);
+    val = readl_relaxed(ddata->base + PWM2_REG_CTRL);
     val = (val & 0xFFFFFFFE) | PWM_ENABLE;
+	printk(KERN_INFO"ly----pwm_reg_ctrl:%02x\n",val);
     printk("pwm enable val=0x%x \n",val);
-    writel_relaxed(val, ddata->base + PWM_REG_CTRL);
+    writel_relaxed(val, ddata->base + PWM2_REG_CTRL);
     return 0;
 }
 
 static int remotectl_fb_event_notify(struct notifier_block *self, unsigned long action, void *data)
 {
+	printk(KERN_INFO"ly----remotectl_fb_event_notify\n");
+
        struct fb_event *event = data;
        int blank_mode = *((int *)event->data);
 
@@ -528,10 +542,22 @@ static int rk_pwm_probe(struct platform_device *pdev)
     //int val;
     int i,j;
     int gpio,flag;
+	unsigned int pwm_value,pwm_value2;
     
     printk(".. rk pwm remotectl v1.0 init\n");
+   //
+//#define GRF_BASE    0xff770000
+//#define GRF_GPIO7CH_IO  0x0078
+//#define GRF_CLKGATE11_CON_RK  0x
+//#define GRF_SOC_CON2_RK  0x024c
+   //pwm_value = __raw_readl(GRF_GPIO7CH_IO+GRF_BASE);
+   // __raw_writel(pwm_value|(1<<8)|(1<<9)|(1<<16)|(1<<17), GRF_GPIO7CH_IO+GRF_BASE);
+
+	//pwm_value2 = __raw_readl(GRF_SOC_CON2_RK+GRF_BASE);
+	//printk(KERN_INFO"RK_PWM_PROBE:pwm_value:%x",pwm_value);
+	//printk(KERN_INFO"RK_PWM_PROBE:pwm_value2:%x",pwm_value2);
     
-    r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
     if (!r) {
         dev_err(&pdev->dev, "no memory resources defined\n");
         return -ENODEV;
@@ -551,6 +577,7 @@ static int rk_pwm_probe(struct platform_device *pdev)
     //pc->clk = devm_clk_get(&pdev->dev, NULL);
     clk = devm_clk_get(&pdev->dev,"pclk_pwm");
     
+	//printk(KERN_INFO"ly--------clk:%ld\n",clk->rate);
     if (IS_ERR(clk))
         return PTR_ERR(clk);
     
@@ -584,6 +611,7 @@ static int rk_pwm_probe(struct platform_device *pdev)
     }
     
     irq = ret = platform_get_irq(pdev, 0);
+	printk(KERN_INFO"ly-----irq:%d\n",irq);
     if (ret < 0) {
         dev_err(&pdev->dev, "cannot find IRQ\n");
         return ret;
@@ -666,11 +694,11 @@ static int rk_pwm_remove(struct platform_device *pdev)
 #ifdef CONFIG_PM
 static int remotectl_suspend(struct device *dev)
 {
+printk("remotectl_suspend....\n");
 	int cpu = 0;
 	struct cpumask cpumask;
 	struct platform_device *pdev = to_platform_device(dev);
     struct rkxx_remotectl_drvdata *ddata = platform_get_drvdata(pdev);
-printk("remotectl_suspend....\n");
 	cpumask_clear(&cpumask);
 	cpumask_set_cpu(cpu, &cpumask); 
 	irq_set_affinity(ddata->irq, &cpumask); 
@@ -680,6 +708,7 @@ printk("remotectl_suspend....\n");
 
 static int remotectl_resume(struct device *dev)
 {
+printk("remotectl_resume....\n");
 	int cpu = 2;
 	struct cpumask cpumask;
     struct platform_device *pdev = to_platform_device(dev);
@@ -700,7 +729,7 @@ static const struct dev_pm_ops remotectl_pm_ops = {
 
 
 static const struct of_device_id rk_pwm_of_match[] = {
-	{ .compatible =  "rockchip,rk-pwm0"},
+	{ .compatible =  "rockchip,rk-pwm2"},
 	{ }
 };
 
@@ -708,7 +737,7 @@ MODULE_DEVICE_TABLE(of, rk_pwm_of_match);
 
 static struct platform_driver rk_pwm_driver = {
     .driver = {
-        .name = "rk-pwm0",
+        .name = "rk-pwm2",
         .of_match_table = rk_pwm_of_match,
     #ifdef CONFIG_PM
         .pm	= &remotectl_pm_ops,

@@ -1858,6 +1858,7 @@ base_error:
 /* probes a new socdev */
 static int soc_probe(struct platform_device *pdev)
 {
+	printk(KERN_INFO"ly----static int soc_probe\n");
 	struct snd_soc_card *card = platform_get_drvdata(pdev);
 
 	/*

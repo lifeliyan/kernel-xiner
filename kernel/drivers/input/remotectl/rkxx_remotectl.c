@@ -292,7 +292,7 @@ static struct rkxx_remotectl_button remotectl_button[] =
 */
     {  
        //.usercode = 0xff40,    
-	.usercode = 0x2ff,
+    	.usercode = 0xff40,
        .nbuttons =  28,       
        .key_table = &remote_key_table_r66[0],
     }, 
@@ -436,6 +436,7 @@ static void remotectl_do_something(unsigned long  data)
                                 input_sync(ddata->input);
                             }*/
                             //printk("0\n");
+							printk(KERN_INFO"ly-----keycode:%02x,keycode-d:%d\n",ddata->keycode,ddata->keycode);
                             input_event(ddata->input, EV_KEY, ddata->keycode, 1);
                             input_sync(ddata->input);
                         //input_event(ddata->input, EV_KEY, ddata->keycode, ddata->press);
@@ -842,7 +843,7 @@ static int  remotectl_init(void)
 static void  remotectl_exit(void)
 {
 	platform_driver_unregister(&remotectl_device_driver);
-    printk(KERN_INFO "++++++++remotectl_init\n");
+    printk(KERN_INFO "++++++++remotectl_exit\n");
 }
 
 module_init(remotectl_init);

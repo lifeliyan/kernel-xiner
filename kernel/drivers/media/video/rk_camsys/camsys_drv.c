@@ -377,6 +377,7 @@ static int camsys_sysctl(camsys_sysctrl_t *devctl, camsys_dev_t *camsys_dev)
         {
             case CamSys_ClkIn:
             {
+				printk(KERN_INFO"camsys_clkin.....................\n");
                 camsys_dev->clkin_cb(camsys_dev,devctl->on);
                 break;
             }
@@ -389,11 +390,13 @@ static int camsys_sysctl(camsys_sysctrl_t *devctl, camsys_dev_t *camsys_dev)
             } 
             case CamSys_Flash_Trigger:
             {
+				printk(KERN_INFO"camsys_flash_trigger.....................\n");
                 camsys_dev->flash_trigger_cb(camsys_dev, devctl->on);
                 break;
             }
             case CamSys_IOMMU:
             {
+				printk(KERN_INFO"camsys_iommu.....................\n");
                 if(camsys_dev->iommu_cb(camsys_dev, devctl) < 0){
                     err = -1;
                     }
@@ -539,6 +542,8 @@ static int active_list_isnot_empty(camsys_irqpool_t *irqpool)
 }
 static int camsys_irq_wait(camsys_irqsta_t *irqsta, camsys_dev_t *camsys_dev)
 {
+//camsys_trace(3,"camsys_irq_wait\n!");
+//printk(KERN_INFO"in camsys_irq_wait\n");
     int err = 0;
     bool find_pool = false;
     camsys_irqstas_t *irqstas;
@@ -843,7 +848,9 @@ static long camsys_ioctl(struct file *filp,unsigned int cmd, unsigned long arg)
                 return -EFAULT;
 
             err = camsys_sysctl(&devctl, camsys_dev);
+//			printk(KERN_INFO"camsys_sysctl:err===========:%d\n",err);
             if ((err==0) && (devctl.ops == CamSys_IOMMU)){
+				printk(KERN_INFO"camsys_iommu===========\n");
                 if (copy_to_user((void __user *)arg,(void*)&devctl, sizeof(camsys_sysctrl_t))) 
                     return -EFAULT;
             }
@@ -864,6 +871,7 @@ static long camsys_ioctl(struct file *filp,unsigned int cmd, unsigned long arg)
 
         case CAMSYS_REGISTER_DEVIO:
         {
+				//printk(KERN_INFO"camsys_register_devio.....................\n");
             camsys_devio_name_t devio;
 
             if (copy_from_user((void*)&devio,(void __user *)arg, sizeof(camsys_devio_name_t))) 
@@ -875,6 +883,7 @@ static long camsys_ioctl(struct file *filp,unsigned int cmd, unsigned long arg)
 
         case CAMSYS_DEREGISTER_DEVIO:
         {
+				//printk(KERN_INFO"camsys_deregister_devio.....................\n");
             unsigned int dev_id;
 
             if (copy_from_user((void*)&dev_id,(void __user *)arg, sizeof(unsigned int)))
@@ -886,6 +895,7 @@ static long camsys_ioctl(struct file *filp,unsigned int cmd, unsigned long arg)
 
         case CAMSYS_IRQCONNECT:
         {
+//				printk(KERN_INFO"camsys_irqconnect.....................\n");
             camsys_irqcnnt_t irqcnnt;
 
             if (copy_from_user((void*)&irqcnnt,(void __user *)arg, sizeof(camsys_irqcnnt_t))) 
@@ -898,6 +908,7 @@ static long camsys_ioctl(struct file *filp,unsigned int cmd, unsigned long arg)
 
         case CAMSYS_IRQWAIT:
         {
+//				printk(KERN_INFO"camsys_irqwait.....................\n");
             camsys_irqsta_t irqsta;
 
             err = camsys_irq_wait(&irqsta, camsys_dev);
@@ -910,6 +921,7 @@ static long camsys_ioctl(struct file *filp,unsigned int cmd, unsigned long arg)
 
         case CAMSYS_IRQDISCONNECT:
         {
+//				printk(KERN_INFO"camsys_irqdisconnect.....................\n");
             camsys_irqcnnt_t irqcnnt;
 
             if (copy_from_user((void*)&irqcnnt,(void __user *)arg, sizeof(camsys_irqcnnt_t))) 
@@ -921,6 +933,7 @@ static long camsys_ioctl(struct file *filp,unsigned int cmd, unsigned long arg)
         
         case CAMSYS_QUREYMEM:
         {
+				printk(KERN_INFO"camsys_iommu.....................\n");
             camsys_querymem_t qmem;
 
             if (copy_from_user((void*)&qmem,(void __user *)arg, sizeof(camsys_querymem_t))) 
@@ -1063,6 +1076,53 @@ static int camsys_platform_probe(struct platform_device *pdev){
         goto fail_end;
     }
 
+#if 1
+	enum of_gpio_flags flags;
+	     int cifpower_io;
+	     int io_ret;
+	     cifpower_io = of_get_named_gpio_flags(dev->of_node, "gpios-cifpower", 0, &flags);
+	     printk(KERN_INFO"ly:gpios-cifpower： gpio=%d\n", cifpower_io);
+	     //if(gpio_is_valid(cifpower_io))
+		 {
+		       //   cifpower_io = of_get_named_gpio_flags(dev->of_node, "gpios-cifpower", 0, &flags);
+		        //  printk(KERN_INFO"ly:gpios-cifpower： gpio_request\n");
+		          io_ret = gpio_request(cifpower_io,"cifpower");
+		          printk(KERN_INFO"ly:gpios-cifpower： gpio_request=%d\n", io_ret);
+	          if(io_ret < 0){
+			             printk("ly:Request %s(%d) failed","cifpower\n", cifpower_io);
+			          }
+		          else{
+			                 gpio_direction_output(cifpower_io, 1);
+			                 gpio_set_value(cifpower_io, 1);
+			                 printk("ly:gpios-cifpower： %d high\n", cifpower_io);
+			          }
+		     }
+
+#endif
+#if 0
+	enum of_gpio_flags flagsp;
+	     int pwdn;
+	     //int io_ret;
+	     pwdn = of_get_named_gpio_flags(dev->of_node, "gpios-pwdn", 0, &flagsp);
+	     printk(KERN_INFO"ly:gpios-pwdn： gpio=%d\n", pwdn);
+	     //if(gpio_is_valid(cifpower_io))
+		 {
+		       //   cifpower_io = of_get_named_gpio_flags(dev->of_node, "gpios-cifpower", 0, &flags);
+		        //  printk(KERN_INFO"ly:gpios-cifpower： gpio_request\n");
+		          io_ret = gpio_request(pwdn,"mipi-pwdn");
+		          printk(KERN_INFO"ly:gpios-pwdn： gpio_request=%d\n", io_ret);
+	          if(io_ret < 0){
+			             printk("ly:Request %d failed","pwdn\n", pwdn);
+			          }
+		          else{
+			                 gpio_direction_output(pwdn, 1);
+			                 gpio_set_value(pwdn, 0);
+			                 printk("ly:gpios-pwdn： %d high\n", pwdn);
+			          }
+		     }
+
+
+#endif
     //spin_lock_init(&camsys_dev->lock);
     mutex_init(&camsys_dev->extdevs.mut);
     INIT_LIST_HEAD(&camsys_dev->extdevs.list);

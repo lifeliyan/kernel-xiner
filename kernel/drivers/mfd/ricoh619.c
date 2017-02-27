@@ -438,7 +438,7 @@ static void ricoh619_power_off(void)
 	for(i=0;i < 10;i++){
 		printk("%s,line=%d\n", __func__,__LINE__);
 		#ifdef CONFIG_BATTERY_RICOH619
-			ret = __ricoh619_read(client, 0xBD, &val);
+			ret = __ricoh619_read(client, 0xBD, &val);// indicates the state in charging
 			if(ret < 0)
 				continue;
 			charge_state = (val & 0x1F);
@@ -451,7 +451,7 @@ static void ricoh619_power_off(void)
 				continue;
 		}
 		#endif  
-		ret = __ricoh619_read(client, RICOH619_PWR_SLP_CNT,&val);//Power OFF
+		ret = __ricoh619_read(client, RICOH619_PWR_SLP_CNT,&val);//Power OFF  sleep reg
 		if(ret < 0)
 			continue;
 		ret = __ricoh619_write(client, RICOH619_PWR_SLP_CNT,(val |(0x1<<0)));//Power OFF
@@ -858,7 +858,7 @@ static int ricoh619_i2c_probe(struct i2c_client *client,
 	ricoh619->bank_num = 0;
 	
 	if (ricoh619->dev->of_node)
-		pdata = ricoh619_parse_dt(ricoh619);
+		pdata = ricoh619_parse_dt(ricoh619); // parse pin (int,sleep..)
 	
 	if (pdata->dc_det) 
 		ricoh619->dc_det = pdata->dc_det;
@@ -866,7 +866,7 @@ static int ricoh619_i2c_probe(struct i2c_client *client,
 	/******************************set sleep vol & dcdc mode******************/
 	#ifdef CONFIG_OF
 	if (pdata->pmic_sleep_gpio) {
-			ret = gpio_request(pdata->pmic_sleep_gpio, "ricoh619_pmic_sleep");
+		  	ret = gpio_request(pdata->pmic_sleep_gpio, "ricoh619_pmic_sleep");
 			if (ret < 0) {
 				dev_err(ricoh619->dev,"Failed to request gpio %d with ret:""%d\n",	pdata->pmic_sleep_gpio, ret);
 				return IRQ_NONE;
@@ -881,15 +881,15 @@ static int ricoh619_i2c_probe(struct i2c_client *client,
 	ret = ricoh619_irq_init(ricoh619, pdata->irq_gpio, pdata);
 	if (ret < 0)
 		goto err;
-	
+//	mfd 
 	ret = mfd_add_devices(ricoh619->dev, -1,
 			     ricoh619s, ARRAY_SIZE(ricoh619s),
 			      NULL, 0,NULL);
 	g_ricoh619 = ricoh619;
-	if (pdata->pm_off && !pm_power_off) {
+	if (pdata->pm_off && !pm_power_off) {//pdata->pm_off = true
 		pm_power_off = ricoh619_power_off;
 	}
-	ricoh619_debuginit(ricoh619);
+	ricoh619_debuginit(ricoh619);//create debug file  /sys/kernel/debug/ricoh619
 
 	ricoh619_i2c_client = client;
 	return 0;

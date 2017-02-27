@@ -1302,7 +1302,7 @@ static void s3cmci_set_clk(struct s3cmci_host *host, struct mmc_ios *ios)
 	if (ios->clock == 0)
 		host->real_rate = 0;
 }
-
+//
 static void s3cmci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 {
 	struct s3cmci_host *host = mmc_priv(mmc);
@@ -1347,7 +1347,7 @@ static void s3cmci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 		mci_con |= S3C2410_SDICON_CLOCKTYPE;
 	else
 		mci_con &= ~S3C2410_SDICON_CLOCKTYPE;
-
+//把状态写入到寄存器中,使得配置的状态生效
 	writel(mci_con, host->base + S3C2410_SDICON);
 
 	if ((ios->power_mode == MMC_POWER_ON) ||
@@ -1368,7 +1368,7 @@ static void s3cmci_reset(struct s3cmci_host *host)
 	con |= S3C2440_SDICON_SDRESET;
 	writel(con, host->base + S3C2410_SDICON);
 }
-
+//根据写保护引脚的状态来判断是否写保护
 static int s3cmci_get_ro(struct mmc_host *mmc)
 {
 	struct s3cmci_host *host = mmc_priv(mmc);

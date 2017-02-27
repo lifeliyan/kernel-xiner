@@ -385,6 +385,7 @@ static void get_chroma(unsigned char *block, struct fb_monspecs *specs)
 static void calc_mode_timings(int xres, int yres, int refresh,
 			      struct fb_videomode *mode)
 {
+	printk(KERN_INFO"ly-----calc_mode_timings------\n");
 	struct fb_var_screeninfo *var;
 
 	var = kzalloc(sizeof(struct fb_var_screeninfo), GFP_KERNEL);
@@ -407,6 +408,7 @@ static void calc_mode_timings(int xres, int yres, int refresh,
 		mode->vmode = 0;
 		mode->sync = 0;
 		kfree(var);
+		printk(KERN_INFO"ly-------refresh:%d --------\n",refresh);
 	}
 }
 
@@ -498,6 +500,7 @@ static int get_est_timing(unsigned char *block, struct fb_videomode *mode)
 static int get_std_timing(unsigned char *block, struct fb_videomode *mode,
 		int ver, int rev)
 {
+	printk(KERN_INFO"ly----get_std_timing-------\n");
 	int xres, yres = 0, refresh, ratio, i;
 
 	xres = (block[0] + 31) * 8;
@@ -524,6 +527,7 @@ static int get_std_timing(unsigned char *block, struct fb_videomode *mode,
 		break;
 	}
 	refresh = (block[1] & 0x3f) + 60;
+	printk(KERN_INFO"ly--------get refresh:%d ------------\n",refresh);
 
 	DPRINTK("      %dx%d@%dHz\n", xres, yres, refresh);
 	for (i = 0; i < VESA_MODEDB_SIZE; i++) {
@@ -536,6 +540,7 @@ static int get_std_timing(unsigned char *block, struct fb_videomode *mode,
 		}
 	}
 	calc_mode_timings(xres, yres, refresh, mode);
+	printk(KERN_INFO"ly--------get2 refresh:%d ------------\n",refresh);
 	return 1;
 }
 
@@ -572,6 +577,7 @@ static void get_detailed_timing(unsigned char *block,
 		mode->sync |= FB_SYNC_VERT_HIGH_ACT;
 	mode->refresh = PIXEL_CLOCK/((H_ACTIVE + H_BLANKING) *
 				     (V_ACTIVE + V_BLANKING));
+	printk(KERN_INFO"ly-------get 3 refresh:%d --------------\n",mode->refresh);
 	if (INTERLACED) {
 		mode->yres *= 2;
 		mode->upper_margin *= 2;
@@ -1048,6 +1054,7 @@ void fb_edid_add_monspecs(unsigned char *edid, struct fb_monspecs *specs)
 		if (i == specs->modedb_len)
 			m[i].flag |= FB_MODE_IS_FIRST;
 		pr_debug("Adding %ux%u@%u\n", m[i].xres, m[i].yres, m[i].refresh);
+		printk("ly----------Adding %ux%u@%u\n", m[i].xres, m[i].yres, m[i].refresh);
 	}
 
 	for (i = specs->modedb_len + num; i < specs->modedb_len + num + svd_n; i++) {
@@ -1059,6 +1066,8 @@ void fb_edid_add_monspecs(unsigned char *edid, struct fb_monspecs *specs)
 		} else {
 			memcpy(&m[i], cea_modes + idx, sizeof(m[i]));
 			pr_debug("Adding SVD #%d: %ux%u@%u\n", idx,
+				 m[i].xres, m[i].yres, m[i].refresh);
+			printk("ly-----Adding SVD #%d: %ux%u@%u\n", idx,
 				 m[i].xres, m[i].yres, m[i].refresh);
 		}
 	}
@@ -1283,6 +1292,7 @@ static void fb_timings_dclk(struct __fb_timings *timings)
  */
 int fb_get_mode(int flags, u32 val, struct fb_var_screeninfo *var, struct fb_info *info)
 {
+	printk(KERN_INFO"ly-----fb_get_mode--------\n");
 	struct __fb_timings *timings;
 	u32 interlace = 1, dscan = 1;
 	u32 hfmin, hfmax, vfmin, vfmax, dclkmin, dclkmax, err = 0;
@@ -1380,6 +1390,7 @@ int fb_get_mode(int flags, u32 val, struct fb_var_screeninfo *var, struct fb_inf
 int fb_videomode_from_videomode(const struct videomode *vm,
 				struct fb_videomode *fbmode)
 {
+	printk(KERN_INFO"ly-----fb_videomode_from_videomode----\n");
 	unsigned int htotal, vtotal;
 
 	fbmode->xres = vm->hactive;
@@ -1429,6 +1440,10 @@ EXPORT_SYMBOL_GPL(fb_videomode_from_videomode);
 static inline void dump_fb_videomode(const struct fb_videomode *m)
 {
 	pr_debug("fb_videomode = %ux%u@%uHz (%ukHz) %u %u %u %u %u %u %u %u %u\n",
+		 m->xres, m->yres, m->refresh, m->pixclock, m->left_margin,
+		 m->right_margin, m->upper_margin, m->lower_margin,
+		 m->hsync_len, m->vsync_len, m->sync, m->vmode, m->flag);
+	printk("fb_videomode = %ux%u@%uHz (%ukHz) %u %u %u %u %u %u %u %u %u\n",
 		 m->xres, m->yres, m->refresh, m->pixclock, m->left_margin,
 		 m->right_margin, m->upper_margin, m->lower_margin,
 		 m->hsync_len, m->vsync_len, m->sync, m->vmode, m->flag);

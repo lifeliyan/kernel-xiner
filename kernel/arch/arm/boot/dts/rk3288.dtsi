@@ -471,13 +471,35 @@
 		status = "disabled";
 	};
 
+	fiq_debugger: fiq-debugger {
+
+		compatible = "rockchip,fiq-debugger";
+
+		rockchip,serial-id = <1>;
+
+		rockchip,signal-irq = <182>;
+
+		rockchip,wake-irq = <0>;
+
+		rockchip,irq-mode-enable = <1>; /* If enable uart uses irq instead of fiq /
+
+		rockchip,baudrate = <1500000>; / Only 115200 and 1500000 */
+
+		pinctrl-names = "default";
+
+		pinctrl-0 = <&uart1_xfer>;
+
+};
+/*
 	fiq-debugger {
+
 		compatible = "rockchip,fiq-debugger";
 		rockchip,serial-id = <2>;
 		rockchip,signal-irq = <106>;
 		rockchip,wake-irq = <0>;
 		status = "disabled";
 	};
+*/
 
 	rockchip_clocks_init: clocks-init{
 		compatible = "rockchip,clocks-init";
@@ -598,7 +620,8 @@
 				//<&clk_gates5 12>,/*hdmi_hdcp_clk*/
 
 				/*UART*/
-				<&clk_gates11 9>,/*pclk_uart2*/
+			/*	<&clk_gates11 9>,pclk_uart2*/
+				<&clk_gates11 11>,/*pclk_uart2*/
 
 				/*480M*/
 				<&usbphy_480m>;
@@ -858,7 +881,7 @@
 		pinctrl-0 = <&pwm0_pin>;
 		clocks = <&clk_gates11 11>;
 		clock-names = "pclk_pwm";
-		status = "okay";
+		status = "disabled";
 	};
 
 	pwm1: pwm@ff680010 {
@@ -873,7 +896,7 @@
 	};
 
 	pwm2: pwm@ff680020 {
-		compatible = "rockchip,rk-pwm";
+		compatible = "rockchip,rk-pwm2";
 		reg = <0xff680020 0x10>;
 		#pwm-cells = <2>;
 		pinctrl-names = "default";
@@ -892,6 +915,19 @@
 		clocks = <&clk_gates11 11>;
 		clock-names = "pclk_pwm";
 		status = "disabled";
+	};
+
+remotectl: pwm@ff680020 {
+		compatible = "rockchip,remotectl-pwm";
+		reg = <0xff680020 0x10>;
+		#pwm-cells = <2>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pwm2_pin>;
+		clocks = <&clk_gates11 11>;
+		clock-names = "pclk_pwm";
+		remote_pwm_id = <2>;
+		interrupts = <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
+		status = "okay";
 	};
 
 	dvfs {
@@ -1087,6 +1123,7 @@
 	};
 
 	usb1: usb@ff540000 {
+	
 		compatible = "rockchip,rk3288_usb20_host";
 		reg = <0xff540000 0x40000>;
 		interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
@@ -1254,7 +1291,8 @@
 		pinctrl-names = "default", "isp_dvp8bit2", "isp_dvp10bit", "isp_dvp12bit", "isp_dvp8bit0", "isp_mipi_fl", "isp_mipi_fl_prefl","isp_flash_as_gpio","isp_flash_as_trigger_out";
 		pinctrl-0 = <&isp_mipi>;
 		pinctrl-1 = <&isp_mipi &isp_dvp_d2d9>;
-		pinctrl-2 = <&isp_mipi &isp_dvp_d2d9 &isp_dvp_d0d1>;
+		pinctrl-2 = <&isp_mipi &isp_dvp_d2d9>;
+		//pinctrl-2 = <&isp_mipi &isp_dvp_d2d9 &isp_dvp_d0d1>;
 		pinctrl-3 = <&isp_mipi &isp_dvp_d2d9 &isp_dvp_d0d1 &isp_dvp_d10d11>;
 		pinctrl-4 = <&isp_mipi &isp_dvp_d0d7>;
 		pinctrl-5 = <&isp_mipi>;
@@ -1265,6 +1303,8 @@
 		rockchip,isp,cifphy = <1>;
 		rockchip,isp,mipiphy1,reg = <0xff968000 0x4000>;
 		rockchip,gpios = <&gpio7 GPIO_B5 GPIO_ACTIVE_HIGH>;
+		gpios-cifpower = <&gpio0 GPIO_C1 GPIO_ACTIVE_HIGH>;
+		//gpios-pwdn = <&gpio2 GPIO_B7  GPIO_ACTIVE_HIGH>;
 		rockchip,isp,iommu_enable = <0>;
 		status = "okay";
 	};

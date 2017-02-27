@@ -1,6 +1,6 @@
 /dts-v1/;
 
-//#include <dt-bindings/input/input.h>
+#include <dt-bindings/input/input.h>
 #include "rk3288.dtsi"
 //#include "lcd-b101ew05.dtsi"
 
@@ -92,8 +92,6 @@
 
 
 
-
-
 ////////////////////////////////////////////////////////////这一块不能屏蔽，否则解锁进入系统后，无法深度休眠
 	codec_hdmi_i2s: codec-hdmi-i2s {
 		compatible = "hdmi-i2s";
@@ -143,17 +141,12 @@
 				//frame-master;
 			};
 		};
-	};
-
-
-
-
-
+	};	
 
 	rkxx-remotectl{
 		compatible = "rockchip,remotectl";
-                module-gpios = <&gpio7 GPIO_A0 GPIO_ACTIVE_LOW>;
-        led-power = <&gpio8 GPIO_A1 GPIO_ACTIVE_LOW>;
+                module-gpios = <&gpio7 GPIO_C6 GPIO_ACTIVE_LOW>;
+        //led-power = <&gpio8 GPIO_A1 GPIO_ACTIVE_LOW>;
 		status = "disabled";
 	};
 
@@ -175,6 +168,13 @@
 		led-power = <&gpio8 GPIO_A3 GPIO_ACTIVE_LOW>;
 		status = "okay";
 	};
+	
+	buzzer{
+		compatible = "firefly,buzzer";
+		buzzer = <&gpio7 GPIO_B4 GPIO_ACTIVE_HIGH>;
+		status = "okay";
+	};
+	
 
 };
 
@@ -206,7 +206,24 @@
 			};
 		};
 
-
+	gpio5_gpio{
+			gpio5_b4: gpio5-b4 {
+				rockchip,pins = <GPIO5_B4>;
+				rockchip,pull = <VALUE_PULL_DOWN>;
+			};
+			gpio5-b2{
+				rockchip,pins = <GPIO5_B2>;
+				rockchip,pull = <VALUE_PULL_DOWN>;
+			
+			};
+			gpio5-b3 {
+				rockchip,pins = <GPIO5_B3>;
+				rockchip,pull = <VALUE_PULL_DOWN>;
+				
+			};
+	
+	
+	};
 	
 		
 	gpio7_gpio {
@@ -215,13 +232,19 @@
 				rockchip,pins = <GPIO7_B7>;
 				rockchip,pull = <VALUE_PULL_UP>;
 			};
-			*/
-
-			gpio7_b5: gpio7-b5 {
-				rockchip,pins = <GPIO7_B5>;
+			
+			gpio7_b4: gpio7-b4 {
+				rockchip,pins = <GPIO7_B4>;
 				rockchip,pull = <VALUE_PULL_DOWN>;
 			};
+			gpio7_b4:gpio7-b4 {
 
+					 
+				rockchip,pins = <GPIO7_B4>;
+				rockchip,pull = <VALUE_PULL_UP>;
+					 
+			};
+*/
 			//to add
 		};
 		
@@ -368,7 +391,7 @@
 };
 
 &uart_dbg {
-	status = "okay";
+	status = "disable";
 };
 
 
@@ -499,6 +522,24 @@
         max-x = <1024>;
         max-y = <600>;
     };
+	
+     dlp@1b { 
+        	compatible = "dlp,edu";
+        	reg = <0x1b>;
+			/*
+			dlp-gpios1 = <&gpio7 GPIO_A5 GPIO_ACTIVE_HIGH>; 
+			dlp-gpios2 = <&gpio7 GPIO_B7 GPIO_ACTIVE_HIGH>; 
+			dlp-gpios3 = <&gpio5 GPIO_C0 GPIO_ACTIVE_HIGH>; 
+			dlp-gpios4 = <&gpio5 GPIO_C3 GPIO_ACTIVE_HIGH>; 
+			dlp-gpios5 = <&gpio8 GPIO_A2 GPIO_ACTIVE_HIGH>; 
+			dlp-gpios6 = <&gpio8 GPIO_A3 GPIO_ACTIVE_HIGH>; 
+        */
+			dlp-gpios1 = <&gpio7 GPIO_A3 GPIO_ACTIVE_HIGH>; 
+			dlp-gpios2 = <&gpio7 GPIO_A4 GPIO_ACTIVE_HIGH>; 
+			dlp-gpios3 = <&gpio7 GPIO_A5 GPIO_ACTIVE_HIGH>; 
+			dlp-gpios4 = <&gpio7 GPIO_A6 GPIO_ACTIVE_HIGH>;
+			//drv_gpio = <&gpio7 GPIO_B4  GPIO_ACTIVE_HIGH>;
+			};
 
 };
 
@@ -547,10 +588,19 @@
 
 	rockchip_headset {
 		compatible = "rockchip_headset";
-		headset_gpio = <&gpio7 GPIO_B5 GPIO_ACTIVE_LOW>;
+		headset_gpio = <&gpio5 GPIO_B4 GPIO_ACTIVE_LOW>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&gpio7_b5>;
-		io-channels = <&adc 2>; 
+		pinctrl-0 = <&gpio5_b4>;
+		io-channels = <&adc 2>;
+
+		apshdn = <&gpio5 GPIO_B2  GPIO_ACTIVE_LOW>;
+//		pinctrl-names = "default";
+//		pinctrl-0 = <&gpio5_b2>;
+	
+		apmute = <&gpio5 GPIO_B3  GPIO_ACTIVE_LOW>;
+//		pinctrl-names = "default";
+//		pinctrl-0 = <&gpio5_b3>;
+		
        	  /*
                hook_gpio = ;
                hook_down_type = ; //interrupt hook key down status 
@@ -564,16 +614,73 @@
 };
 
 
-
-
-
 &pwm0 {
-	interrupts = <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
-        status = "okay";
+        status = "disabled";
 };
 
 &pwm1 {
 	status = "okay";
+};
+
+&remotectl {
+	handle_cpu_id = <1>;
+	ir_key1{
+		//rockchip,usercode = <0x4040>;
+		//rockchip,usercode = <0xff40>;
+		rockchip,usercode = <0x9f00>;
+		rockchip,key_table =
+			/*
+			<0xf2	KEY_REPLY>,
+			<0xba	KEY_BACK>,
+			<0xf4	KEY_UP>,
+			<0xf1	KEY_DOWN>,
+			<0xef	KEY_LEFT>,
+			<0xee	KEY_RIGHT>,
+			<0xbd	KEY_HOME>,
+			<0xea	KEY_VOLUMEUP>,
+			<0xe3	KEY_VOLUMEDOWN>,
+			<0xe2	KEY_SEARCH>,
+			<0xb2	KEY_POWER>,
+			<0xbc	KEY_MUTE>,
+			<0xec	KEY_MENU>,
+			<0xbf	0x190>,
+			<0xe0	0x191>,
+			<0xe1	0x192>,
+			<0xe9	183>,
+			<0xe6	248>,
+			<0xe8	185>,
+			<0xe7	186>,
+			<0xf0	388>,
+			<0xbe	0x175>;
+			
+			<0xEA15	KEY_POWER>,
+			<0xC23D	KEY_UP>,
+			<0x90AF	KEY_DOWN>,
+			<0xA09F	KEY_LEFT>,
+			<0xB08F	KEY_RIGHT>,
+			<0x80BF	KEY_ENTER>,
+			<0xE21D	KEY_HOME>,
+			<0xA897	KEY_MENU>,
+			<0xF20D	KEY_BACK>,
+			<0xDA25	KEY_MUTE>,
+			<0x80FF	KEY_VOLUMEUP>,
+			<0xBA45	KEY_VOLUMEDOWN>;
+		*/
+			<0xa8	KEY_POWER>,
+			<0xbc	KEY_UP>,
+			<0xf5	KEY_DOWN>,
+			<0xf9	KEY_LEFT>,
+			<0xf1 	KEY_RIGHT>,
+			<0xfd	KEY_ENTER>,
+			<0xb8 	KEY_HOME>,
+			<0xe9	KEY_MENU>,
+			<0xb0	KEY_BACK>,
+			<0xa4	KEY_MUTE>,
+			<0xff	KEY_VOLUMEUP>,
+			<0xa2	KEY_VOLUMEDOWN>;
+			
+	};
+	//status = "okay";
 };
 
 

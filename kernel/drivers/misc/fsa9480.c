@@ -410,13 +410,14 @@ static int fsa9480_irq_init(struct fsa9480_usbsw *usbsw)
 static int fsa9480_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id)
 {
+
+	
 	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 	struct fsa9480_usbsw *usbsw;
 	int ret = 0;
 
 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA))
 		return -EIO;
-
 	usbsw = kzalloc(sizeof(struct fsa9480_usbsw), GFP_KERNEL);
 	if (!usbsw) {
 		dev_err(&client->dev, "failed to allocate driver data\n");
@@ -496,7 +497,6 @@ static int fsa9480_resume(struct device *dev)
 	struct i2c_client *client = to_i2c_client(dev);
 	struct fsa9480_usbsw *usbsw = i2c_get_clientdata(client);
 	int dev1, dev2;
-
 	if (device_may_wakeup(&client->dev) && client->irq)
 		disable_irq_wake(client->irq);
 
@@ -510,7 +510,6 @@ static int fsa9480_resume(struct device *dev)
 
 	dev1 = fsa9480_read_reg(client, FSA9480_REG_DEV_T1);
 	dev2 = fsa9480_read_reg(client, FSA9480_REG_DEV_T2);
-
 	/* device detection */
 	fsa9480_detect_dev(usbsw, (dev1 || dev2) ? INT_ATTACH : INT_DETACH);
 

@@ -591,7 +591,9 @@ static int ricoh619_rtc_probe(struct platform_device *pdev)
 	int err;
 	uint8_t buff[6];
 
-//	printk(KERN_INFO "******PMU RTC: Version 2014-01-01 REDS!******\n");
+	int ret;
+
+	//	printk(KERN_INFO "******PMU RTC: Version 2014-01-01 REDS!******\n");
 
 	pdata = ricoh619_rtc_dt_init(pdev);
 	if (!pdata) {
@@ -798,6 +800,17 @@ static int ricoh619_rtc_probe(struct platform_device *pdev)
 	ricoh619_read_regs(&pdev->dev, rtc_ctrl1, 1,&buff[0]);
 	ricoh619_read_regs(&pdev->dev, rtc_ctrl2, 1,&buff[1]);
 //	printk(KERN_INFO "0xAE:%x 0xAF:%x\n",buff[0],buff[1]);
+//
+    //ret = ricoh619_bulk_writes((&pdev->dev)->parent, 0x37, 1, 0x98);
+	//
+	//printk(KERN_INFO"ly------0x37------------------s\n");
+	//uint8_t dcdcbuf[2];
+	//dcdcbuf[0] = 0x98;
+	//ricoh619_read_regs(&pdev->dev, 0x37, 1,&buff[0]);
+	//printk(KERN_INFO "ly------rtc-ricoh619  ret = %d\n",ret);
+	//printk(KERN_INFO"ly------0x37------------------e\n");
+
+//
 	return 0;
 
 fail:

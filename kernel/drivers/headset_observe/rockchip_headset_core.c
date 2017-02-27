@@ -41,7 +41,7 @@ static int rockchip_headset_probe(struct platform_device *pdev)
 	struct device_node *node = pdev->dev.of_node;
 	struct rk_headset_pdata *pdata;
 	int ret;
-	enum of_gpio_flags flags;
+	enum of_gpio_flags flags,flags1,flags2;
 
 	pdata = kzalloc(sizeof(struct rk_headset_pdata), GFP_KERNEL);
 	if (pdata == NULL) {
@@ -72,6 +72,51 @@ static int rockchip_headset_probe(struct platform_device *pdev)
 
 		pdata->headset_insert_type = (flags & OF_GPIO_ACTIVE_LOW) ? HEADSET_IN_LOW : HEADSET_IN_HIGH;
 	}
+
+/*apshdn apmute*/
+	ret = of_get_named_gpio_flags(node, "apshdn", 0, &flags1);
+	if (ret < 0) {
+		printk("%s() Can not read property apshdn\n", __FUNCTION__);
+		goto err;
+	} else {
+		pdata->apshdn_gpio = ret;
+		ret = devm_gpio_request(&pdev->dev, pdata->apshdn_gpio, "apshdn");
+		if(ret < 0){
+			printk("%s() devm_gpio_request apshdn request ERROR\n", __FUNCTION__);
+			goto err;
+		}
+
+		ret = gpio_direction_output(pdata->apshdn_gpio,1); 
+		if(ret < 0){
+			printk("%s() gpio_direction_input apshdn_gpio set ERROR\n", __FUNCTION__);
+			goto err;
+		}
+		gpio_set_value(pdata->apshdn_gpio,0);
+
+		//pdata->headset_insert_type = (flags & OF_GPIO_ACTIVE_LOW) ? HEADSET_IN_LOW : HEADSET_IN_HIGH;
+	}
+
+	ret = of_get_named_gpio_flags(node, "apmute", 0, &flags2);
+	if (ret < 0) {
+		printk("%s() Can not read property apmute_gpio\n", __FUNCTION__);
+		goto err;
+	} else {
+		pdata->apmute_gpio = ret;
+		ret = devm_gpio_request(&pdev->dev, pdata->apmute_gpio, "apmute");
+		if(ret < 0){
+			printk("%s() devm_gpio_request apmute request ERROR\n", __FUNCTION__);
+		//	goto err;
+		}
+
+		ret = gpio_direction_output(pdata->apmute_gpio,1); 
+		if(ret < 0){
+			printk("%s() gpio_direction_input apmute_gpio set ERROR\n", __FUNCTION__);
+		//	goto err;
+		}
+        gpio_set_value(pdata->apmute_gpio,0);
+		//pdata->headset_insert_type = (flags & OF_GPIO_ACTIVE_LOW) ? HEADSET_IN_LOW : HEADSET_IN_HIGH;
+	}
+
 
 	//hook
 	ret = of_get_named_gpio_flags(node, "hook_gpio", 0, &pdata->hook_gpio);

@@ -31,7 +31,7 @@
 #include "rt5631.h"
 #include <linux/timer.h>
 
-#if 0
+#if 1
 #define DBG(x...)	printk(x)
 #else
 #define DBG(x...)

@@ -414,6 +414,7 @@ static const struct snd_soc_component_driver rockchip_spdif_component = {
 
 static int spdif_probe(struct platform_device *pdev)
 {
+	printk(KERN_INFO"ly----spdif_probe\n");
 	/*struct device_node *spdif_np = pdev->dev.of_node;*/
 	struct resource *memregion;
 	struct resource *mem_res;

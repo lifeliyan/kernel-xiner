@@ -19,6 +19,13 @@
 #define PWM1_REG_INT_EN                 0x34  /* Interrupt Enable Refister For Pwm1*/
 #define PWM0_REG_INT_EN                 0x44  /* Interrupt Enable Refister For Pwm0*/
 
+
+/* PWM2 registers  */
+#define PWM2_REG_CNTR                    0x20  /* Counter Register */
+#define PWM2_REG_HPR		             0x24  /* Period Register */
+#define PWM2_REG_LPR                     0x28  /* Duty Cycle Register */
+#define PWM2_REG_CTRL                    0x2c  /* Control Register */
+
 /*REG_CTRL bits definitions*/
 #define PWM_ENABLE			            (1 << 0)
 #define PWM_DISABLE			            (0 << 0)

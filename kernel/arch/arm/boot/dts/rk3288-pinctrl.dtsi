@@ -1126,13 +1126,13 @@
 				//rockchip,tristate = <VALUE_TRI_DEFAULT>;			
 			};
 			isp_dvp_d2d9:isp_dvp_d2d9	{
-				rockchip,pins = <CIF_DATA2>,<CIF_DATA3>,
+				rockchip,pins = <CIF_DATA0>,<CIF_DATA1>,
+								<CIF_DATA2>,<CIF_DATA3>,
 								<CIF_DATA4>,<CIF_DATA5>,
 								<CIF_DATA6>,<CIF_DATA7>,
-								<CIF_DATA8>,<CIF_DATA9>,
 								<CIF_VSYNC>,<CIF_HREF>,
 								<CIF_CLKIN>,<CIF_CLKOUT>;
-				rockchip,pull = <VALUE_PULL_DISABLE>;
+				rockchip,pull = <VALUE_PULL_DEFAULT>;
 				rockchip,drive = <VALUE_DRV_DEFAULT>;
 				//rockchip,tristate = <VALUE_TRI_DEFAULT>;
 
