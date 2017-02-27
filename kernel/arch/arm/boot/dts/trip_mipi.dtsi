@@ -1,0 +1,145 @@
+/*
+ * Copyright (C) 2014 Firefly, Inc.
+ * arch/arm/boot/dts/lcd-ips5k0350fpc-mipi.dtsi
+ * create date: 2014-04-15
+ * lcd model: ips5k0350fpc
+ * resolution: 1080X1920
+ * mipi channel: single 
+ */
+
+/ {	
+		/* about mipi */
+		disp_mipi_init: mipi_dsi_init{
+					compatible = "rockchip,mipi_dsi_init";
+					rockchip,screen_init	= <1>;
+					rockchip,dsi_lane		= <4>;
+					rockchip,dsi_hs_clk		= <1000>;
+					rockchip,mipi_dsi_num	= <1>;
+		};
+
+		disp_mipi_power_ctr: mipi_power_ctr {
+					compatible = "rockchip,mipi_power_ctr";
+/*
+					
+					mipi_lcd_rst:mipi_lcd_rst{
+							compatible = "rockchip,lcd_rst";
+							rockchip,gpios = <&gpio0 GPIO_B5 GPIO_ACTIVE_LOW>;
+							rockchip,delay = <10>;
+					};
+					mipi_lcd_en:mipi_lcd_en {
+							compatible = "rockchip,lcd_en";
+							rockchip,gpios = <&gpio7 GPIO_A3 GPIO_ACTIVE_HIGH>;
+							rockchip,delay = <10>;
+					};
+*/
+		};
+
+
+		disp_mipi_init_cmds: screen-on-cmds {
+					rockchip,cmd_debug = <0>;
+					compatible = "rockchip,screen-on-cmds";	
+			/*	
+					rockchip,on-cmds1 {
+							compatible = "rockchip,on-cmds";
+							rockchip,cmd_type = <LPDT>;
+							rockchip,dsi_id = <0>;
+							rockchip,cmd = <0x05 0x00 0x01>;
+							rockchip,cmd_delay = <30>;
+					};
+
+					rockchip,on-cmds2 {
+							compatible = "rockchip,on-cmds";
+							rockchip,cmd_type = <LPDT>;
+							rockchip,dsi_id = <0>;
+							rockchip,cmd = <0x15 0x80 0x47>;
+							rockchip,cmd_delay = <0>;
+					};
+
+
+					rockchip,on-cmds3 {
+							compatible = "rockchip,on-cmds";
+							rockchip,cmd_type = <LPDT>;
+							rockchip,dsi_id = <0>;
+							rockchip,cmd = <0x15 0x81 0x40>;
+							rockchip,cmd_delay = <0>;
+					};
+
+		
+					rockchip,on-cmds4 {
+							compatible = "rockchip,on-cmds";
+							rockchip,cmd_type = <LPDT>;
+							rockchip,dsi_id = <0>;
+							rockchip,cmd = <0x15 0x82 0x04>;
+							rockchip,cmd_delay = <0>;
+					};
+
+					rockchip,on-cmds5 {
+							compatible = "rockchip,on-cmds";
+							rockchip,cmd_type = <LPDT>;
+							rockchip,dsi_id = <0>;
+							rockchip,cmd = <0x15 0x83 0x77>;
+							rockchip,cmd_delay = <0>;
+					};
+
+					rockchip,on-cmds6 {
+							compatible = "rockchip,on-cmds";
+							rockchip,cmd_type = <LPDT>;
+							rockchip,dsi_id = <0>;
+							rockchip,cmd = <0x15 0x84 0x0f>;
+							rockchip,cmd_delay = <0>;
+					};
+
+					rockchip,on-cmds7 {
+							compatible = "rockchip,on-cmds";
+							rockchip,cmd_type = <LPDT>;
+							rockchip,dsi_id = <0>;
+							rockchip,cmd = <0x15 0x85 0x70>;
+							rockchip,cmd_delay = <0>;
+					};
+
+					rockchip,on-cmds8 {
+							compatible = "rockchip,on-cmds";
+							rockchip,cmd_type = <LPDT>;
+							rockchip,dsi_id = <0>;
+							rockchip,cmd = <0x15 0x86 0x70>;
+							rockchip,cmd_delay = <0>;
+					};
+			*/
+		};
+
+		disp_timings: display-timings {
+                        native-mode = <&timing0>;
+                        compatible = "rockchip,display-timings";
+                        timing0: timing0 {
+				screen-type = <SCREEN_MIPI>;
+				//screen-type = <SCREEN_DUAL_MIPI>;
+				lvds-format = <LVDS_8BIT_2>;
+				out-face    = <OUT_P888>;
+				//color-mode = <COLOR_RGB>;
+				clock-frequency = <60000000>;
+				hactive = <1024>;
+				vactive = <600>;
+				hsync-len = <20>;
+				hback-porch = <150>;
+				hfront-porch = <150>;
+				
+				vsync-len = <3>;
+				vback-porch = <24>;
+				vfront-porch = <8>;
+				
+				hsync-active = <1>;
+				vsync-active = <1>;
+				de-active = <0>;
+				pixelclk-active = <1>;
+				swap-rb = <0>;
+				swap-rg = <0>;
+				swap-gb = <0>;
+                     	};
+
+			
+               };
+};
+
+&dsihost0 {
+	status = "okay";
+};

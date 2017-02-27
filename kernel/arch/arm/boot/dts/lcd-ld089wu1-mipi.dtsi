@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) 2014 ROCKCHIP, Inc.
+ * arch/arm/boot/dts/lcd-lq070m1sx01-mipi.dtsi
+ * author: libing@rock-chips.com
+ * create date: 2014-04-15
+ * lcd model: ld089wu1 
+ * resolution: 1920 X 1200
+ * mipi channel: single
+ */
+
+/ {
+		/* about mipi */
+		disp_mipi_init: mipi_dsi_init{
+					compatible = "rockchip,mipi_dsi_init";
+					rockchip,screen_init	= <0>;
+					rockchip,dsi_lane		= <4>;
+					rockchip,dsi_hs_clk		= <1000>;
+					rockchip,mipi_dsi_num	= <1>;
+		};
+		disp_mipi_power_ctr: mipi_power_ctr {
+					compatible = "rockchip,mipi_power_ctr";
+		};
+		disp_mipi_init_cmds: screen-on-cmds {
+					compatible = "rockchip,screen-on-cmds";
+		};
+
+
+		disp_timings: display-timings {
+                        native-mode = <&timing0>;
+                        compatible = "rockchip,display-timings";
+                        timing0: timing0 {
+				screen-type = <SCREEN_MIPI>;
+				lvds-format = <LVDS_8BIT_2>;
+				out-face    = <OUT_P888>;
+				clock-frequency = <131000000>;
+				hactive = <1200>;
+				vactive = <1920>;
+				hback-porch = <62>;
+				hfront-porch = <85>;
+				vback-porch = <20>;
+				vfront-porch = <20>;
+				hsync-len = <1>;
+				vsync-len = <1>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				de-active = <0>;
+				pixelclk-active = <1>;
+				swap-rb = <0>;
+				swap-rg = <0>;
+				swap-gb = <0>;
+                     	};
+               };
+};
